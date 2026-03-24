@@ -16,17 +16,17 @@
 
 package controllers
 
-import com.google.inject.Inject
+import play.api.mvc._
 import config.FrontendAppConfig
 import play.api.i18n.Lang
-import play.api.mvc._
 import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
+import com.google.inject.Inject
 
-class LanguageSwitchController @Inject()(
-                                          appConfig: FrontendAppConfig,
-                                          languageUtils: LanguageUtils,
-                                          cc: ControllerComponents
-                                        ) extends LanguageController(languageUtils, cc) {
+class LanguageSwitchController @Inject() (
+  appConfig: FrontendAppConfig,
+  languageUtils: LanguageUtils,
+  cc: ControllerComponents
+) extends LanguageController(languageUtils, cc) {
 
   override def fallbackURL: String = routes.IndexController.onPageLoad().url
 

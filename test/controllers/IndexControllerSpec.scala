@@ -16,10 +16,10 @@
 
 package controllers
 
-import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.IndexView
+import base.SpecBase
 
 class IndexControllerSpec extends SpecBase {
 
@@ -38,7 +38,7 @@ class IndexControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
 
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view()(using request, messages(application)).toString
       }
     }
   }
