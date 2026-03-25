@@ -16,11 +16,11 @@
 
 package forms.mappings
 
-import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.data.{Form, FormError}
+import org.scalatest.OptionValues
 import models.Enumerable
+import play.api.data.{Form, FormError}
 
 object MappingsSpec {
 
@@ -33,7 +33,7 @@ object MappingsSpec {
     val values: Set[Foo] = Set(Bar, Baz)
 
     implicit val fooEnumerable: Enumerable[Foo] =
-      Enumerable(values.toSeq.map(v => v.toString -> v): _*)
+      Enumerable(values.toSeq.map(v => v.toString -> v)*)
   }
 }
 
@@ -60,7 +60,7 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
 
     "must not bind a string of whitespace only" in {
       val result = testForm.bind(Map("value" -> " \t"))
-      result.errors must contain (FormError("value", "error.required"))
+      result.errors must contain(FormError("value", "error.required"))
     }
 
     "must not bind an empty map" in {
@@ -167,7 +167,6 @@ class MappingsSpec extends AnyFreeSpec with Matchers with OptionValues with Mapp
       result.errors must contain(FormError("value", "error.required"))
     }
   }
-
 
   "currency" - {
 

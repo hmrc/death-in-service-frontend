@@ -16,11 +16,11 @@
 
 package controllers
 
-import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.govuk.SummaryListFluency
 import views.html.CheckYourAnswersView
+import base.SpecBase
+import viewmodels.govuk.SummaryListFluency
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 
@@ -39,7 +39,7 @@ class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
         val list = SummaryListViewModel(Seq.empty)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(list)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(list)(using request, messages(application)).toString
       }
     }
 

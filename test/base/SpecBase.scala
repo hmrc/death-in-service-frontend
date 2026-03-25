@@ -16,20 +16,20 @@
 
 package base
 
+import play.api.test.FakeRequest
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.matchers.must.Matchers
+import play.api.inject.bind
 import controllers.actions._
 import models.UserAnswers
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.inject.guice.GuiceApplicationBuilder
 import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
 import org.scalatest.{OptionValues, TryValues}
 import play.api.Application
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.FakeRequest
 
 trait SpecBase
-  extends AnyFreeSpec
+    extends AnyFreeSpec
     with Matchers
     with TryValues
     with OptionValues
@@ -38,7 +38,7 @@ trait SpecBase
 
   val userAnswersId: String = "id"
 
-  def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
+  def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
