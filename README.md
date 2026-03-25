@@ -7,7 +7,7 @@ Frontend microservice for Death in Service (DIS) which is a feature on manage yo
 
 1. Make sure you run all the dependant services through the service manager:
 
-   > `sm2 --start DIS_ALL`
+   > `sm2 --start DEATH_IN_SERVICE_ALL`
 
 2. Stop the frontend microservice from the service manager and run it locally:
 
