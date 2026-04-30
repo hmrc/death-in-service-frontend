@@ -17,20 +17,25 @@
 package controllers.actions
 
 import play.api.mvc._
+import generators.Generators
+import models.PensionSchemeId.PspId
+import org.scalatest.OptionValues
 import models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 
 import javax.inject.Inject
 
-class FakeIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
+class FakePspIdentifierAction @Inject() (
+  val bodyParsers: PlayBodyParsers
+)(implicit
+  override val executionContext: ExecutionContext
+) extends IdentifierAction
+    with Generators
+    with OptionValues {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest.AdministratorRequest("id", "externalId", request, "A1234567"))
+    block(practitionerRequestGen(request).map(_.copy(userId = "id", pspId = PspId("A1234567"))).sample.value)
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  override def parser: BodyParser[AnyContent] = bodyParsers.default
 }

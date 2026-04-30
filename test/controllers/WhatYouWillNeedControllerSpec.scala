@@ -16,20 +16,20 @@
 
 package controllers
 
-import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers.*
+import play.api.test.Helpers._
 import views.html.WhatYouWillNeedView
+import base.SpecBase
 
 class WhatYouWillNeedControllerSpec extends SpecBase {
 
-  lazy val whatYouWillNeedRoute: String = routes.WhatYouWillNeedController.onPageLoad().url
+  lazy val whatYouWillNeedRoute: String = routes.WhatYouWillNeedController.onPageLoad(srn).url
 
   "WhatYouWillNeed Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), usesSession = true).build()
 
       running(application) {
         val request = FakeRequest(GET, whatYouWillNeedRoute)
@@ -39,13 +39,13 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
         val view = application.injector.instanceOf[WhatYouWillNeedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(using request, messages(application)).toString
+        contentAsString(result) mustEqual view(srn)(using request, messages(application)).toString
       }
     }
-//TODO update test redirect when next screen implemented
+    // TODO update test redirect when next screen implemented
     "must redirect to itself on submit" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers), usesSession = true).build()
 
       running(application) {
         val request =
@@ -55,7 +55,7 @@ class WhatYouWillNeedControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.WhatYouWillNeedController.onPageLoad(srn).url
       }
     }
   }

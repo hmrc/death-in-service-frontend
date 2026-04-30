@@ -18,6 +18,14 @@ package config
 
 object Constants {
 
+  val psaEnrolmentKey = "HMRC-PODS-ORG"
+  val pspEnrolmentKey = "HMRC-PODSPP-ORG"
+  val psaIdKey = "PSAID"
+  val pspIdKey = "PSPID"
+  val SRN = "srn"
+  val detailsNotFound = "DETAILS_NOT_FOUND"
+  val delimitedPSA = "DELIMITED_PSAID"
+
   object Css {
 
     val bodyCssClass = "govuk-body"

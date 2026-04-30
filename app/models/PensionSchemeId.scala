@@ -14,22 +14,30 @@
  * limitations under the License.
  */
 
-package config
+package models
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+import models.PensionSchemeId.{PsaId, PspId}
 
-import java.time.{Clock, ZoneOffset}
+sealed trait PensionSchemeId { self =>
 
-class Module extends AbstractModule {
+  val value: String
 
-  override def configure(): Unit = {
+  def fold[B](f1: PsaId => B, f2: PspId => B): B =
+    self match {
+      case id @ PsaId(_) => f1(id)
+      case id @ PspId(_) => f2(id)
+    }
 
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-
-    bind(classOf[IdentifierAction]).to(classOf[IdentifierActionImpl]).asEagerSingleton()
-
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+  val isPSP: Boolean = this match {
+    case PspId(_) => true
+    case _ => false
   }
+}
+
+object PensionSchemeId {
+
+  case class PspId(value: String) extends PensionSchemeId
+
+  case class PsaId(value: String) extends PensionSchemeId
+
 }

@@ -16,20 +16,16 @@
 
 package config
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+import play.api.mvc.PathBindable
+import models.SchemeId.Srn
 
-import java.time.{Clock, ZoneOffset}
+object Binders {
 
-class Module extends AbstractModule {
+  implicit val srnBinder: PathBindable[Srn] = new PathBindable[Srn] {
 
-  override def configure(): Unit = {
+    override def bind(key: String, value: String): Either[String, Srn] =
+      Srn(value).toRight("Invalid scheme reference number")
 
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-
-    bind(classOf[IdentifierAction]).to(classOf[IdentifierActionImpl]).asEagerSingleton()
-
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+    override def unbind(key: String, value: Srn): String = value.value
   }
 }

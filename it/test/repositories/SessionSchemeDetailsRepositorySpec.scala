@@ -17,7 +17,8 @@
 package repositories
 
 import config.FrontendAppConfig
-import models.UserAnswers
+import generators.Generators
+import models.{SchemeDetails, SessionSchemeDetails}
 import org.mockito.Mockito.when
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
@@ -28,7 +29,6 @@ import org.scalatest.matchers.must.Matchers
 import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
-import play.api.libs.json.Json
 import uk.gov.hmrc.mdc.MdcExecutionContext
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
 
@@ -36,26 +36,31 @@ import java.time.temporal.ChronoUnit
 import java.time.{Clock, Instant, ZoneId}
 import scala.concurrent.{ExecutionContext, Future}
 
-class SessionRepositorySpec
+class SessionSchemeDetailsRepositorySpec
   extends AnyFreeSpec
     with Matchers
-    with DefaultPlayMongoRepositorySupport[UserAnswers]
+    with DefaultPlayMongoRepositorySupport[SessionSchemeDetails]
     with ScalaFutures
     with IntegrationPatience
     with OptionValues
-    with MockitoSugar {
+    with MockitoSugar
+    with Generators {
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
-
-  private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
+  
+  val schemeDetails: SchemeDetails =
+    schemeDetailsGen.sample.value.copy(schemeStatus = validSchemeStatusGen.sample.value)
+    
+  private val sessionSchemeDetails: SessionSchemeDetails =
+    SessionSchemeDetails("id", "srn", schemeDetails, Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
   when(mockAppConfig.sessionTtl) `thenReturn` 1L
 
   implicit val productionLikeTestMdcExecutionContext: ExecutionContext = MdcExecutionContext()
 
-  protected override val repository: SessionRepository = new SessionRepository(
+  protected override val repository: SessionSchemeDetailsRepository = new SessionSchemeDetailsRepository(
     mongoComponent = mongoComponent,
     appConfig      = mockAppConfig,
     clock          = stubClock
@@ -65,15 +70,15 @@ class SessionRepositorySpec
 
     "must set the last updated time on the supplied user answers to `now`, and save them" in {
 
-      val expectedResult = userAnswers.copy(lastUpdated = instant)
+      val expectedResult = sessionSchemeDetails.copy(lastUpdated = instant)
 
-      repository.set(userAnswers).futureValue
-      val updatedRecord = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
+      repository.set(sessionSchemeDetails).futureValue
+      val updatedRecord = find(Filters.equal("_id", sessionSchemeDetails.id)).futureValue.headOption.value
 
-      updatedRecord mustEqual expectedResult
+      updatedRecord.mustEqual(expectedResult)
     }
 
-    mustPreserveMdc(repository.set(userAnswers))
+    mustPreserveMdc(repository.set(sessionSchemeDetails))
   }
 
   ".get" - {
@@ -82,12 +87,12 @@ class SessionRepositorySpec
 
       "must update the lastUpdated time and get the record" in {
 
-        insert(userAnswers).futureValue
+        insert(sessionSchemeDetails).futureValue
 
-        val result         = repository.get(userAnswers.id).futureValue
-        val expectedResult = userAnswers.copy(lastUpdated = instant)
+        val result         = repository.get(sessionSchemeDetails.id).futureValue
+        val expectedResult = sessionSchemeDetails.copy(lastUpdated = instant)
 
-        result.value mustEqual expectedResult
+        result.value.mustEqual(expectedResult)
       }
     }
 
@@ -99,18 +104,18 @@ class SessionRepositorySpec
       }
     }
 
-    mustPreserveMdc(repository.get(userAnswers.id))
+    mustPreserveMdc(repository.get(sessionSchemeDetails.id))
   }
 
   ".clear" - {
 
     "must remove a record" in {
 
-      insert(userAnswers).futureValue
+      insert(sessionSchemeDetails).futureValue
 
-      repository.clear(userAnswers.id).futureValue
+      repository.clear(sessionSchemeDetails.id).futureValue
 
-      repository.get(userAnswers.id).futureValue must not be defined
+      repository.get(sessionSchemeDetails.id).futureValue must not be defined
     }
 
     "must return true when there is no record to remove" in {
@@ -119,7 +124,7 @@ class SessionRepositorySpec
       result mustEqual true
     }
 
-    mustPreserveMdc(repository.clear(userAnswers.id))
+    mustPreserveMdc(repository.clear(sessionSchemeDetails.id))
   }
 
   ".keepAlive" - {
@@ -128,14 +133,14 @@ class SessionRepositorySpec
 
       "must update its lastUpdated to `now` and return true" in {
 
-        insert(userAnswers).futureValue
+        insert(sessionSchemeDetails).futureValue
 
-        repository.keepAlive(userAnswers.id).futureValue
+        repository.keepAlive(sessionSchemeDetails.id).futureValue
 
-        val expectedUpdatedAnswers = userAnswers.copy(lastUpdated = instant)
+        val expectedUpdatedAnswers = sessionSchemeDetails.copy(lastUpdated = instant)
 
-        val updatedAnswers = find(Filters.equal("_id", userAnswers.id)).futureValue.headOption.value
-        updatedAnswers mustEqual expectedUpdatedAnswers
+        val updatedAnswers = find(Filters.equal("_id", sessionSchemeDetails.id)).futureValue.headOption.value
+        updatedAnswers.mustEqual(expectedUpdatedAnswers)
       }
     }
 
@@ -147,7 +152,7 @@ class SessionRepositorySpec
       }
     }
 
-    mustPreserveMdc(repository.keepAlive(userAnswers.id))
+    mustPreserveMdc(repository.keepAlive(sessionSchemeDetails.id))
   }
 
   private def mustPreserveMdc[A](f: => Future[A])(implicit pos: Position): Unit =

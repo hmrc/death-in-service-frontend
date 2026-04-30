@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package config
+package controllers.actions
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+import play.api.test.Helpers.stubBodyParser
+import play.api.mvc._
 
-import java.time.{Clock, ZoneOffset}
+import scala.concurrent.{ExecutionContext, Future}
 
-class Module extends AbstractModule {
+class FakeActionBuilder[F[_], A](fa: F[A]) extends ActionBuilder[F, AnyContent] {
+  override def parser: BodyParser[AnyContent] = stubBodyParser[AnyContent]()
 
-  override def configure(): Unit = {
+  override def invokeBlock[B](request: Request[B], block: F[B] => Future[Result]): Future[Result] =
+    block(fa.asInstanceOf[F[B]])
 
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-
-    bind(classOf[IdentifierAction]).to(classOf[IdentifierActionImpl]).asEagerSingleton()
-
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+  override protected def executionContext: ExecutionContext = ExecutionContext.global
 }

@@ -18,5 +18,5 @@ GET         /account/signed-out                          controllers.auth.Signed
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
 
-GET         /what-you-will-need                           controllers.WhatYouWillNeedController.onPageLoad()
-POST        /what-you-will-need                           controllers.WhatYouWillNeedController.onSubmit()
+GET         /:srn/what-you-will-need           controllers.WhatYouWillNeedController.onPageLoad(srn: Srn)
+POST        /:srn/what-you-will-need           controllers.WhatYouWillNeedController.onSubmit(srn: Srn)

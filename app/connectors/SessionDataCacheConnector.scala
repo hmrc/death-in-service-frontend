@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package connectors
 
-import play.api.mvc._
-import models.requests.IdentifierRequest
+import uk.gov.hmrc.http.HttpReads.Implicits.{readFromJson, readOptionOfNotFound}
+import config.FrontendAppConfig
+import play.api.Logging
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import models.SessionData
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
 import javax.inject.Inject
 
-class FakeIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
+class SessionDataCacheConnector @Inject() (config: FrontendAppConfig, http: HttpClientV2) extends Logging {
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest.AdministratorRequest("id", "externalId", request, "A1234567"))
+  private def url: String = s"${config.pensionsAdministrator}/pension-administrator/journey-cache/session-data-self"
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  def fetch()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[SessionData]] =
+    http
+      .get(url"$url")
+      .execute[Option[SessionData]]
 }

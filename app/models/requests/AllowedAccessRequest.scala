@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package config
+package models.requests
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+import play.api.mvc.WrappedRequest
+import models.SchemeId.Srn
+import models.{MinimalDetails, PensionSchemeId, SchemeDetails}
 
-import java.time.{Clock, ZoneOffset}
+case class AllowedAccessRequest[A](
+  request: IdentifierRequest[A],
+  schemeDetails: SchemeDetails,
+  minimalDetails: MinimalDetails,
+  srn: Srn
+) extends WrappedRequest[A](request) {
 
-class Module extends AbstractModule {
+  val getUserId: String = request.getUserId
 
-  override def configure(): Unit = {
-
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-
-    bind(classOf[IdentifierAction]).to(classOf[IdentifierActionImpl]).asEagerSingleton()
-
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
-  }
+  val pensionSchemeId: PensionSchemeId = request.pensionSchemeId
 }

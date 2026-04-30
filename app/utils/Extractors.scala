@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-import com.google.inject.AbstractModule
-import controllers.actions._
+object Extractors {
 
-import java.time.{Clock, ZoneOffset}
+  object && {
+    def unapply[A](a: A): Some[(A, A)] = Some((a, a))
+  }
 
-class Module extends AbstractModule {
-
-  override def configure(): Unit = {
-
-    bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
-    bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
-
-    bind(classOf[IdentifierAction]).to(classOf[IdentifierActionImpl]).asEagerSingleton()
-
-    bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+  object Int {
+    def unapply(s: String): Option[Int] =
+      s.toIntOption
   }
 }
