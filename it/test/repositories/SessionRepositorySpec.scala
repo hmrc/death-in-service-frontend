@@ -25,6 +25,7 @@ import org.scalatest.OptionValues
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
 import play.api.libs.json.Json
@@ -50,7 +51,7 @@ class SessionRepositorySpec
   private val userAnswers = UserAnswers("id", Json.obj("foo" -> "bar"), Instant.ofEpochSecond(1))
 
   private val mockAppConfig = mock[FrontendAppConfig]
-  when(mockAppConfig.cacheTtl) `thenReturn` 1L
+  when(mockAppConfig.sessionTtl) `thenReturn` 1L
 
   implicit val productionLikeTestMdcExecutionContext: ExecutionContext = MdcExecutionContext()
 
@@ -154,8 +155,8 @@ class SessionRepositorySpec
 
       MDC.put("test", "foo")
 
-      (f.map { _ =>
+      f.map { _ =>
         Option(MDC.get("test"))
-      }.futureValue) mustEqual Some("foo")
+      }.futureValue shouldBe Some("foo")
     }
 }

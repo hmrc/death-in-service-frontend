@@ -17,8 +17,9 @@
 package controllers
 
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.WhatYouWillNeedView
 import controllers.actions._
+import views.html.WhatYouWillNeedView
+import models.SchemeId.Srn
 import play.api.i18n.{I18nSupport, MessagesApi}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -27,16 +28,21 @@ import javax.inject.Inject
 class WhatYouWillNeedController @Inject() (
   override val messagesApi: MessagesApi,
   identify: IdentifierAction,
+  allowAccess: AllowAccessActionWithSessionCacheProvider,
   val controllerComponents: MessagesControllerComponents,
   view: WhatYouWillNeedView
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
-  }
+  def onPageLoad(srn: Srn): Action[AnyContent] =
+    identify
+      .andThen(allowAccess(srn)) { implicit request =>
+        Ok(view(srn))
+      }
 
-  def onSubmit(): Action[AnyContent] = identify { implicit request =>
-    Redirect(routes.WhatYouWillNeedController.onPageLoad())
-  }
+  def onSubmit(srn: Srn): Action[AnyContent] =
+    identify
+      .andThen(allowAccess(srn)) { implicit request =>
+        Redirect(routes.WhatYouWillNeedController.onPageLoad(srn))
+      }
 }

@@ -15,6 +15,7 @@
  *@
 
 @import components.{BulletList, PageHeading, Paragraph}
+@import models.SchemeId.Srn
 
 @this(
         layout: templates.Layout,
@@ -25,10 +26,10 @@
         govukButton: GovukButton
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(srn: Srn)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("whatYouWillNeed.title"))) {
-    @formHelper(action = controllers.routes.WhatYouWillNeedController.onSubmit(), Symbol("autoComplete") -> "off") {
+    @formHelper(action = controllers.routes.WhatYouWillNeedController.onSubmit(srn), Symbol("autoComplete") -> "off") {
 
         @pageHeading(messages("whatYouWillNeed.heading"))
 

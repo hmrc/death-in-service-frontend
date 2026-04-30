@@ -18,7 +18,7 @@ package controllers.auth
 
 import play.api.test.FakeRequest
 import base.SpecBase
-import repositories.SessionRepository
+import repositories.{SessionMinimalDetailsRepository, SessionSchemeDetailsRepository}
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import play.api.test.Helpers._
@@ -36,12 +36,18 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
 
     "must clear user answers and redirect to sign out, specifying the exit survey as the continue URL" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.clear(any())).thenReturn(Future.successful(true))
+      val mockSessionSchemeDetailsRepository = mock[SessionSchemeDetailsRepository]
+      val mockSessionMinimalDetailsRepository: SessionMinimalDetailsRepository = mock[SessionMinimalDetailsRepository]
+
+      when(mockSessionSchemeDetailsRepository.clear(any())).thenReturn(Future.successful(true))
+      when(mockSessionMinimalDetailsRepository.clear(any())).thenReturn(Future.successful(true))
 
       val application =
         applicationBuilder(None)
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .overrides(
+            bind[SessionSchemeDetailsRepository].toInstance(mockSessionSchemeDetailsRepository),
+            bind[SessionMinimalDetailsRepository].toInstance(mockSessionMinimalDetailsRepository)
+          )
           .build()
 
       running(application) {
@@ -52,11 +58,12 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val encodedContinueUrl = URLEncoder.encode(appConfig.exitSurveyUrl, "UTF-8")
-        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+        val expectedRedirectUrl = s"${appConfig.urls.signOutUrl}?continue=$encodedContinueUrl"
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
-        verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+        verify(mockSessionSchemeDetailsRepository, times(1)).clear(eqTo(userAnswersId))
+        verify(mockSessionMinimalDetailsRepository, times(1)).clear(eqTo(userAnswersId))
       }
     }
   }
@@ -65,12 +72,18 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
 
     "must clear users answers and redirect to sign out, specifying SignedOut as the continue URL" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-      when(mockSessionRepository.clear(any())).thenReturn(Future.successful(true))
+      val mockSessionSchemeDetailsRepository = mock[SessionSchemeDetailsRepository]
+      val mockSessionMinimalDetailsRepository: SessionMinimalDetailsRepository = mock[SessionMinimalDetailsRepository]
+
+      when(mockSessionSchemeDetailsRepository.clear(any())).thenReturn(Future.successful(true))
+      when(mockSessionMinimalDetailsRepository.clear(any())).thenReturn(Future.successful(true))
 
       val application =
-        applicationBuilder(None)
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        applicationBuilder(None, isPsa = false)
+          .overrides(
+            bind[SessionSchemeDetailsRepository].toInstance(mockSessionSchemeDetailsRepository),
+            bind[SessionMinimalDetailsRepository].toInstance(mockSessionMinimalDetailsRepository)
+          )
           .build()
 
       running(application) {
@@ -81,11 +94,12 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         val encodedContinueUrl = URLEncoder.encode(routes.SignedOutController.onPageLoad().url, "UTF-8")
-        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+        val expectedRedirectUrl = s"${appConfig.urls.signOutUrl}?continue=$encodedContinueUrl"
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
-        verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+        verify(mockSessionSchemeDetailsRepository, times(1)).clear(eqTo(userAnswersId))
+        verify(mockSessionMinimalDetailsRepository, times(1)).clear(eqTo(userAnswersId))
       }
     }
   }

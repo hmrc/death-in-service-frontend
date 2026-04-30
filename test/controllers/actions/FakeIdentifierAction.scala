@@ -26,7 +26,7 @@ import javax.inject.Inject
 class FakeIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, "id"))
+    block(IdentifierRequest.AdministratorRequest("id", "externalId", request, "A1234567"))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default
