@@ -1,6 +1,5 @@
 import play.sbt.routes.RoutesKeys
 import sbt.Def
-import scoverage.ScoverageKeys
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
 lazy val appName: String = "death-in-service-frontend"
@@ -35,7 +34,7 @@ lazy val microservice = (project in file("."))
       "controllers.routes._",
       "viewmodels.govuk.all._"
     ),
-    PlayKeys.playDefaultPort := 10712,
+    PlayKeys.playDefaultPort := 10713,
     scalacOptions ++= Seq(
       "-feature",
       "-Wconf:msg=Flag.*repeatedly:s",
