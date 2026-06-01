@@ -19,7 +19,7 @@ Frontend microservice for Death in Service (DIS) which is a feature on manage yo
 
    > `sbt run -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes`
 
-The service runs on port `10712` by default.
+The service runs on port `10713` by default.
 
 ### Unit tests
 
