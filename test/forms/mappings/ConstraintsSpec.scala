@@ -216,4 +216,45 @@ class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyC
       result mustEqual Invalid("error.max", CurrencyFormatter.currencyFormat(1))
     }
   }
+
+  "inRange" - {
+
+    "must return Valid for a value within the range" in {
+      val result = inRange(1, 10, "error.range").apply(5)
+      result mustEqual Valid
+    }
+
+    "must return Valid for a value equal to the minimum" in {
+      val result = inRange(1, 10, "error.range").apply(1)
+      result mustEqual Valid
+    }
+
+    "must return Valid for a value equal to the maximum" in {
+      val result = inRange(1, 10, "error.range").apply(10)
+      result mustEqual Valid
+    }
+
+    "must return Invalid for a value below the minimum" in {
+      val result = inRange(1, 10, "error.range").apply(0)
+      result mustEqual Invalid("error.range", 1, 10)
+    }
+
+    "must return Invalid for a value above the maximum" in {
+      val result = inRange(1, 10, "error.range").apply(11)
+      result mustEqual Invalid("error.range", 1, 10)
+    }
+  }
+
+  "nonEmptySet" - {
+
+    "must return Valid for a non-empty set" in {
+      val result = nonEmptySet("error.required").apply(Set(1, 2, 3))
+      result mustEqual Valid
+    }
+
+    "must return Invalid for an empty set" in {
+      val result = nonEmptySet("error.required").apply(Set.empty[Int])
+      result mustEqual Invalid("error.required")
+    }
+  }
 }

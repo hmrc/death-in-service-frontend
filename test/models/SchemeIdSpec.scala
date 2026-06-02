@@ -54,4 +54,27 @@ class SchemeIdSpec extends SpecBase with ScalaCheckPropertyChecks {
       Srn.fromSession(mockSession) mustBe ""
     }
   }
+
+  "asSrn" - {
+
+    "extract valid SRN from string" in {
+      forAll(srnGen) { validSrn =>
+        validSrn.value match {
+          case SchemeId.asSrn(extracted) => extracted mustBe validSrn
+          case _ => fail("Should have extracted valid SRN")
+        }
+      }
+    }
+
+    "return None for invalid SRN string" in {
+      forAll(alphaNumStr) { invalidSrn =>
+        whenever(!invalidSrn.matches(Srn.srnRegex)) {
+          invalidSrn match {
+            case SchemeId.asSrn(_) => fail("Should not have extracted invalid SRN")
+            case _ => succeed
+          }
+        }
+      }
+    }
+  }
 }

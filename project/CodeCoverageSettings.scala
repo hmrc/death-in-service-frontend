@@ -14,12 +14,13 @@ object CodeCoverageSettings {
     ".*viewmodels.ImplicitConversions",
     "testOnlyDoNotUseInAppConf.*",
     "pages.Page",
-    "views.*"
+    "views.*",
+    ".*\\$anon.*"
   )
 
   val settings: Seq[Setting[?]] = Seq(
     ScoverageKeys.coverageExcludedPackages := coverageExcludedPackages.mkString(";"),
-    ScoverageKeys.coverageMinimumStmtTotal := 80,
+    ScoverageKeys.coverageMinimumStmtTotal := 95,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
